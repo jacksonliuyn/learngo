@@ -1,45 +1,35 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"log"
+	"sync"
 )
 
-type Employee struct {
-	ID        int
-	FirstName string
-	LastName  string
-	Address   string
-}
+var wg sync.WaitGroup
+var lock sync.Mutex
 
 func main() {
+	var x int64
+	wg.Add(2)
 
-	employee, err := getInformation(1001)
-	if err != nil {
-		log.Panicln(err)
-	} else {
-		log.Printf("%v", employee)
-	}
-	fmt.Println("next")
-}
+	go func() {
+		lock.Lock()
+		for i := 0; i < 5000; i++ {
 
-var ErrNotFound = errors.New("Employee not found!")
+			x = x + 1
 
-func getInformation(id int) (e *Employee, err error) {
-
-	defer func() {
-		if e := recover(); e != nil {
-			fmt.Printf("Panicing %s\r\n", e)
 		}
-
+		lock.Unlock()
+		wg.Done()
 	}()
-	e, err = apiCallEmployee(1000)
-	panic("there is a panic")
-	return e, err
-}
-
-func apiCallEmployee(id int) (*Employee, error) {
-	employee := Employee{LastName: "Doe", FirstName: "John"}
-	return &employee, nil
+	go func() {
+		lock.Lock()
+		for i := 0; i < 5000; i++ {
+			x = x + 1
+		}
+		lock.Unlock()
+		wg.Done()
+	}()
+	wg.Wait()
+	fmt.Println(x)
 }

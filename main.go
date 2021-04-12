@@ -1,11 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/ahmetb/go-linq/v3"
-	"github.com/gookit/goutil/maputil"
-	gu "github.com/henrylee2cn/goutil"
-	"github.com/henrylee2cn/goutil/calendar"
+	sut "github.com/gookit/goutil/strutil"
 	"time"
 )
 
@@ -18,33 +17,23 @@ type Gen struct {
 func NewGen(faker string) *Gen {
 	return &Gen{Faker: faker}
 }
-
-func main() {
-
-	strings := []Customer{{5, "faker", "faker", 5, "zizi"}, {5, "faker", "faker", 5, "ziza"}}
-	println(len(strings))
-	m := map[string]string{}
-	m["faker"] = "af"
-	fmt.Println(maputil.Keys(m))
-	test := []interface{}{strings[0:1]}
-	println(len(test))
-	for _, k := range test {
-		fmt.Printf("%T \n", k)
-		fmt.Println(k)
+func toMap(object interface{}) (map[string]interface{}, error) {
+	if m, ok := object.(map[string]interface{}); ok {
+		return m, nil
 	}
-	linq.From(strings).SelectT(func(i Customer) string {
-		return i.Name
-	}).ForEachT(func(i string) {
-		fmt.Println("  " + i)
-	})
-	distinct := gu.InterfacesDistinct(test)
-	fmt.Println(distinct)
-	now := calendar.NewSolarNow()
-	add := now.AddDate(0, 0, -5)
-	println(add.String())
-	var ss string = ""
-	ss = fmt.Sprint(ss, "faker")
-	fmt.Println(ss)
+	data, err := json.Marshal(object)
+	if err != nil {
+		return nil, err
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+func main() {
+	customer, _ := NewCustomerBuilder().Age(18).ID(5).Build()
+	println(sut.MustString(customer.ID))
 
 }
 
@@ -255,6 +244,11 @@ func MakeBook2() []Book {
 	return bookList
 }
 
+/**
+ * @author: liuyunan
+ * @Description:
+ * @return []Book
+ */
 func MakeBook3() []Book {
 	bookList := make([]Book, 0)
 	bookList = append(bookList, Book{
@@ -272,4 +266,34 @@ func MakeBook3() []Book {
 		PublishTime: time.Date(2020, 2, 1, 10, 0, 0, 0, time.Local),
 	})
 	return bookList
+}
+
+// Customer builder pattern code
+type CustomerBuilder struct {
+	customer *Customer
+}
+
+func NewCustomerBuilder() *CustomerBuilder {
+	customer := &Customer{}
+	b := &CustomerBuilder{customer: customer}
+	return b
+}
+
+func (b *CustomerBuilder) ID(iD int) *CustomerBuilder {
+	b.customer.ID = iD
+	return b
+}
+
+func (b *CustomerBuilder) Age(age int) *CustomerBuilder {
+	b.customer.Age = age
+	return b
+}
+
+func (b *CustomerBuilder) TaxNumber(taxNumber string) *CustomerBuilder {
+	b.customer.TaxNumber = taxNumber
+	return b
+}
+
+func (b *CustomerBuilder) Build() (*Customer, error) {
+	return b.customer, nil
 }
