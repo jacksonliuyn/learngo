@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/apache/calcite-avatica-go/v5 v5.0.0
-	github.com/brianvoe/gofakeit v2.2.0+incompatible
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/kamva/mgm/v3 v3.4.1
 	github.com/olivere/elastic/v7 v7.0.32
