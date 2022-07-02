@@ -6,6 +6,7 @@ require (
 	github.com/Shopify/sarama v1.34.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/kamva/mgm/v3 v3.4.1
+	github.com/mohuishou/go-design-pattern v1.0.0
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/stretchr/testify v1.7.1
 	go.mongodb.org/mongo-driver v1.9.1
